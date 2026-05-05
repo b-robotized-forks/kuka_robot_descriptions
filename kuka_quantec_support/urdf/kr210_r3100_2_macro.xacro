@@ -19,6 +19,9 @@
           <mesh filename="package://${package_name}/meshes/kr210_r3100_2/visual/base_link.stl"/>
         </geometry>
         <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <material name="custom_blue">
+          <color rgba="0.0 0.6235 0.8902 1.0"/>
+        </material>
       </visual>
     </link>
     <link name="${prefix}link_1">
@@ -38,6 +41,9 @@
           <mesh filename="package://${package_name}/meshes/kr210_r3100_2/visual/link_1.stl"/>
         </geometry>
         <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <material name="custom_blue">
+          <color rgba="0.0 0.6235 0.8902 1.0"/>
+        </material>
       </visual>
     </link>
     <link name="${prefix}link_2">
@@ -57,6 +63,9 @@
           <mesh filename="package://${package_name}/meshes/kr210_r3100_2/visual/link_2.stl"/>
         </geometry>
         <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <material name="custom_blue">
+          <color rgba="0.0 0.6235 0.8902 1.0"/>
+        </material>
       </visual>
     </link>
     <link name="${prefix}link_3">
@@ -76,6 +85,9 @@
           <mesh filename="package://${package_name}/meshes/kr210_r3100_2/visual/link_3.stl"/>
         </geometry>
         <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <material name="custom_blue">
+          <color rgba="0.0 0.6235 0.8902 1.0"/>
+        </material>
       </visual>
     </link>
     <link name="${prefix}link_4">
@@ -95,6 +107,9 @@
           <mesh filename="package://${package_name}/meshes/kr210_r3100_2/visual/link_4.stl"/>
         </geometry>
         <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <material name="custom_blue">
+          <color rgba="0.0 0.6235 0.8902 1.0"/>
+        </material>
       </visual>
     </link>
     <link name="${prefix}link_5">
@@ -114,6 +129,9 @@
           <mesh filename="package://${package_name}/meshes/kr210_r3100_2/visual/link_5.stl"/>
         </geometry>
         <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <material name="custom_blue">
+          <color rgba="0.0 0.6235 0.8902 1.0"/>
+        </material>
       </visual>
     </link>
     <link name="${prefix}link_6">
@@ -133,6 +151,9 @@
           <mesh filename="package://${package_name}/meshes/kr210_r3100_2/visual/link_6.stl"/>
         </geometry>
         <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <material name="custom_blue">
+          <color rgba="0.0 0.6235 0.8902 1.0"/>
+        </material>
       </visual>
     </link>
     <joint name="${prefix}joint_1" type="revolute">
