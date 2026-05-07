@@ -36,6 +36,7 @@ install(DIRECTORY
   urdf
   meshes
   config
+  launch
   DESTINATION share/${PROJECT_NAME}/
 )
 
