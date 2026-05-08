@@ -9,14 +9,5 @@
     <xacro:kuka_kr10r900_2 prefix="$(arg prefix)" initial_positions_file="$(arg initial_positions_file)"
                            robot_ip="$(arg robot_ip)" eki_robot_port="$(arg eki_robot_port)"
                            use_fake_hardware="$(arg use_fake_hardware)"/>
-    
-    <!-- world link -->
-    <link name="world"/>
-    <!-- default world - base_link joint -->
-    <joint name="$(arg prefix)world-base_link" type="fixed">
-        <parent link="world"/>
-        <child link="$(arg prefix)base_link"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-    </joint>
 
 </robot>
