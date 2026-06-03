@@ -3,7 +3,7 @@
     <xacro:include filename="$(find kuka_resources)/urdf/common_materials.xacro"/>
     <xacro:include filename="$(find kuka_kr10_description)/urdf/kuka.ros2_control.xacro"/>
 
-    <xacro:macro name="kuka_kr10r900_2" params="prefix initial_positions_file robot_ip eki_robot_port use_fake_hardware">
+    <xacro:macro name="kuka_kr10r900_2" params="prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model **ext_axes_ros2_control_joints">
 
         <link name="${prefix}base_link">
             <visual>
@@ -181,7 +181,18 @@
         </joint>
         <xacro:kuka_ros2_control name="kuka_control" robot_prefix="${prefix}"
                                  initial_positions_file="${initial_positions_file}"
-                                 robot_ip="${robot_ip}" eki_robot_port="${eki_robot_port}"
-                                 use_fake_hardware="${use_fake_hardware}"/>
+                                 driver_version="${driver_version}"
+                                 client_ip="${client_ip}"
+                                 client_port="${client_port}"
+                                 mxa_client_port="${mxa_client_port}"
+                                 controller_ip="${controller_ip}"
+                                 mode="${mode}"
+                                 use_gpio="${use_gpio}"
+                                 roundtrip_time="${roundtrip_time}"
+                                 verify_robot_model="${verify_robot_model}">
+            <ext_axes_ros2_control_joints>
+                <xacro:insert_block name="ext_axes_ros2_control_joints"/>
+            </ext_axes_ros2_control_joints>
+        </xacro:kuka_ros2_control>
     </xacro:macro>
 </robot>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:macro name="kuka_ros2_control"
-                 params="name robot_prefix initial_positions_file robot_ip eki_robot_port use_fake_hardware">
+                 params="name robot_prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model **ext_axes_ros2_control_joints">
         <xacro:property name="initial_positions"
                         value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
 
@@ -10,15 +10,38 @@
                 <async scheduling_policy="slave" print_warnings="true" thread_priority="30"/>
             </properties>
             <hardware>
-                <xacro:if value="${use_fake_hardware}">
-                    <plugin>mock_components/GenericSystem</plugin>
+                <xacro:if value="${mode == 'mock'}">
+                    <plugin>kuka_mock_hardware_interface::KukaMockHardwareInterface</plugin>
+                    <param name="cycle_time_ms">4</param>
+                    <param name="roundtrip_time_micro">${roundtrip_time}</param>
+                    <param name="mock_sensor_commands">false</param>
+                    <param name="state_following_offset">0.0</param>
                 </xacro:if>
-                <xacro:unless value="${use_fake_hardware}">
-                    <plugin>kuka_eki_hw_interface/KukaEkiHardwareInterface</plugin>
-                    <param name="robot_ip">${robot_ip}</param>
-                    <param name="eki_robot_port">${eki_robot_port}</param>
-                </xacro:unless>
+                <xacro:if value="${mode == 'hardware'}">
+                    <xacro:if value="${driver_version == 'eki_rsi'}">
+                        <plugin>kuka_rsi_driver::KukaEkiRsiHardwareInterface</plugin>
+                        <param name="controller_ip">${controller_ip}</param>
+                        <param name="client_ip">${client_ip}</param>
+                        <param name="client_port">${client_port}</param>
+                        <param name="name">${name}</param>
+                        <param name="verify_robot_model">${verify_robot_model}</param>
+                    </xacro:if>
+                    <xacro:if value="${driver_version == 'mxa_rsi'}">
+                        <plugin>kuka_rsi_driver::KukaMxaRsiHardwareInterface</plugin>
+                        <param name="controller_ip">${controller_ip}</param>
+                        <param name="client_ip">${client_ip}</param>
+                        <param name="client_port">${client_port}</param>
+                        <param name="mxa_client_port">${mxa_client_port}</param>
+                        <param name="verify_robot_model">${verify_robot_model}</param>
+                    </xacro:if>
+                    <xacro:if value="${driver_version == 'rsi_only'}">
+                        <plugin>kuka_rsi_driver::KukaRSIHardwareInterface</plugin>
+                        <param name="client_ip">${client_ip}</param>
+                        <param name="client_port">${client_port}</param>
+                    </xacro:if>
+                </xacro:if>
             </hardware>
+            <xacro:insert_block name="ext_axes_ros2_control_joints"/>
             <joint name="${robot_prefix}joint_a1">
                 <command_interface name="position"/>
                 <state_interface name="position">
@@ -56,6 +79,13 @@
                     <param name="initial_value">${initial_positions['joint_a6']}</param>
                 </state_interface>
             </joint>
+            <xacro:if value="${use_gpio}">
+                <xacro:include filename="$(find kuka_rsi_driver)/config/gpio_config.xacro"/>
+                <xacro:gpio_config/>
+            </xacro:if>
+            <xacro:unless value="${use_gpio}">
+                <gpio name="gpio"/>
+            </xacro:unless>
         </ros2_control>
     </xacro:macro>
 </robot>
