@@ -1,9 +1,13 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:macro name="kuka_ros2_control"
-                 params="name robot_prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model **ext_axes_ros2_control_joints">
+                 params="name robot_prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model
+                 gpio_config:='' **ext_axes_ros2_control_joints">
         <xacro:property name="initial_positions"
                         value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
+        <xacro:if value="${gpio_config == ''}">
+            <xacro:property name="gpio_config" value="$(find kuka_rsi_driver)/config/gpio_config.xacro"/>
+        </xacro:if>
 
         <xacro:property name="scheduling_policy" value="synchronized"/>
         <xacro:if value="${mode == 'hardware'}">
@@ -84,7 +88,7 @@
                 </state_interface>
             </joint>
             <xacro:if value="${use_gpio}">
-                <xacro:include filename="$(find kuka_rsi_driver)/config/gpio_config.xacro"/>
+                <xacro:include filename="${gpio_config}"/>
                 <xacro:gpio_config/>
             </xacro:if>
             <xacro:unless value="${use_gpio}">
