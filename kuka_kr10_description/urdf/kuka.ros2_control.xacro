@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- TODO: OZ edited -->
     <xacro:macro name="kuka_ros2_control"
-                 params="name robot_prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model thread_priority:=30 scheduling_policy:='' cpu_affinity:=''
+                 params="name robot_prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model thread_priority:=30 scheduling_policy:='' cpu_affinity:='[2,3]'
                  gpio_config:='' **ext_axes_ros2_control_joints">
         <xacro:property name="initial_positions"
                         value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
@@ -17,7 +18,12 @@
         </xacro:if>
         <ros2_control name="${name}" type="system" is_async="true" rw_rate="250">
             <properties>
-                <async scheduling_policy="${scheduling_policy}" print_warnings="true" thread_priority="${thread_priority}" cpu_affinity="${cpu_affinity}"/>
+                <xacro:if value="${cpu_affinity == ''}">
+                    <async scheduling_policy="${scheduling_policy}" print_warnings="true" thread_priority="${thread_priority}"/>
+                </xacro:if>
+                <xacro:unless value="${cpu_affinity == ''}">
+                    <async scheduling_policy="${scheduling_policy}" print_warnings="true" thread_priority="${thread_priority}" affinity="${cpu_affinity}"/>
+                </xacro:unless>
             </properties>
             <hardware>
                 <xacro:if value="${mode == 'mock'}">

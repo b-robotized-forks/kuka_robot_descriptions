@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <robot name="kuka_kr10" xmlns:xacro="http://wiki.ros.org/xacro">
+    <!-- TODO: OZ edited -->
     <xacro:include filename="$(find kuka_kr10_description)/urdf/kr10r1100sixx_macro.xacro"/>
     <xacro:arg name="initial_positions_file" default="$(find kuka_kr10_description)/config/initial_positions.yaml"/>
     <xacro:arg name="prefix" default=""/>
@@ -13,6 +14,9 @@
     <xacro:arg name="use_gpio" default="false"/>
     <xacro:arg name="roundtrip_time" default="0"/>
     <xacro:arg name="verify_robot_model" default="False"/>
+    <xacro:arg name="scheduling_policy" default=""/>
+    <xacro:arg name="thread_priority" default="30"/>
+    <xacro:arg name="cpu_affinity" default="[2,3]"/>
     <xacro:kuka_kr10r1100sixx prefix="$(arg prefix)"
                               name="$(arg name)"
                               initial_positions_file="$(arg initial_positions_file)"
@@ -24,7 +28,10 @@
                               mode="$(arg mode)"
                               use_gpio="$(arg use_gpio)"
                               roundtrip_time="$(arg roundtrip_time)"
-                              verify_robot_model="$(arg verify_robot_model)">
+                              verify_robot_model="$(arg verify_robot_model)"
+                              scheduling_policy="$(arg scheduling_policy)"
+                              thread_priority="$(arg thread_priority)"
+                              cpu_affinity="$(arg cpu_affinity)">
         <ext_axes_ros2_control_joints/>
     </xacro:kuka_kr10r1100sixx>
 

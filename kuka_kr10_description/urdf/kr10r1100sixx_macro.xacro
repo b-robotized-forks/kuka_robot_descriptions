@@ -5,7 +5,8 @@
     <xacro:include filename="$(find kuka_kr10_description)/urdf/kuka.ros2_control.xacro"/>
 
 
-    <xacro:macro name="kuka_kr10r1100sixx" params="prefix name initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model **ext_axes_ros2_control_joints">
+    <!-- TODO: OZ edited -->
+    <xacro:macro name="kuka_kr10r1100sixx" params="prefix name initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model scheduling_policy:='' thread_priority:=30 cpu_affinity:='[2,3]' **ext_axes_ros2_control_joints">
         <link name="${prefix}base_link">
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
