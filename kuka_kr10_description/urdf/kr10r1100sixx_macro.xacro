@@ -6,7 +6,7 @@
 
 
     <!-- TODO: OZ edited -->
-    <xacro:macro name="kuka_kr10r1100sixx" params="prefix name initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model scheduling_policy:='' thread_priority:=30 cpu_affinity:='[2,3]' **ext_axes_ros2_control_joints">
+    <xacro:macro name="kuka_kr10r1100sixx" params="prefix name initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model scheduling_policy:='' thread_priority:=30 cpu_affinity:='[2,3]' gpio_config:='' **ext_axes_ros2_control_joints">
         <link name="${prefix}base_link">
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -187,7 +187,7 @@
                                  controller_ip="${controller_ip}"
                                  mode="${mode}"
                                  use_gpio="${use_gpio}"
-                                 gpio_config="$(find kuka_rsi_driver)/config/gpio_config.xacro"
+                                 gpio_config="${gpio_config}"
                                  roundtrip_time="${roundtrip_time}"
                                  verify_robot_model="${verify_robot_model}"
                                  scheduling_policy="${scheduling_policy}"
