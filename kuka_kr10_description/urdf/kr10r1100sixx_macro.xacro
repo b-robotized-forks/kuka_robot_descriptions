@@ -5,7 +5,7 @@
     <xacro:include filename="$(find kuka_kr10_description)/urdf/kuka.ros2_control.xacro"/>
 
 
-    <xacro:macro name="kuka_kr10r1100sixx" params="prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model **ext_axes_ros2_control_joints">
+    <xacro:macro name="kuka_kr10r1100sixx" params="prefix name initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model **ext_axes_ros2_control_joints">
         <link name="${prefix}base_link">
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -177,7 +177,7 @@
             <child link="${prefix}tool0"/>
             <origin xyz="0 0 0" rpy="0 ${radians(90)} 0"/>
         </joint>
-        <xacro:kuka_ros2_control name="kuka_control" robot_prefix="${prefix}"
+        <xacro:kuka_ros2_control name="${name}" robot_prefix="${prefix}"
                                  initial_positions_file="${initial_positions_file}"
                                  driver_version="${driver_version}"
                                  client_ip="${client_ip}"
@@ -188,7 +188,10 @@
                                  use_gpio="${use_gpio}"
                                  gpio_config="$(find kuka_rsi_driver)/config/gpio_config.xacro"
                                  roundtrip_time="${roundtrip_time}"
-                                 verify_robot_model="${verify_robot_model}">
+                                 verify_robot_model="${verify_robot_model}"
+                                 scheduling_policy="${scheduling_policy}"
+                                 thread_priority="${thread_priority}"
+                                 cpu_affinity="${cpu_affinity}">
             <ext_axes_ros2_control_joints>
                 <xacro:insert_block name="ext_axes_ros2_control_joints"/>
             </ext_axes_ros2_control_joints>

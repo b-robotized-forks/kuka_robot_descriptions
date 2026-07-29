@@ -3,6 +3,7 @@
     <xacro:include filename="$(find kuka_kr10_description)/urdf/kr10r1100sixx_macro.xacro"/>
     <xacro:arg name="initial_positions_file" default="$(find kuka_kr10_description)/config/initial_positions.yaml"/>
     <xacro:arg name="prefix" default=""/>
+    <xacro:arg name="name" default="kuka_control"/>
     <xacro:arg name="driver_version" default="eki_rsi"/>
     <xacro:arg name="controller_ip" default="10.181.116.41"/>
     <xacro:arg name="client_ip" default=""/>
@@ -13,6 +14,7 @@
     <xacro:arg name="roundtrip_time" default="0"/>
     <xacro:arg name="verify_robot_model" default="False"/>
     <xacro:kuka_kr10r1100sixx prefix="$(arg prefix)"
+                              name="$(arg name)"
                               initial_positions_file="$(arg initial_positions_file)"
                               driver_version="$(arg driver_version)"
                               controller_ip="$(arg controller_ip)"
