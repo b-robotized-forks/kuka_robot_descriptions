@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="kuka_agilus_ros2_control" params="name driver_version client_ip client_port mxa_client_port controller_ip prefix mode use_gpio roundtrip_time verify_robot_model gpio_config:='' **ext_axes_ros2_control_joints">
+  <xacro:macro name="kuka_agilus_ros2_control" params="name driver_version client_ip client_port mxa_client_port controller_ip prefix mode use_gpio roundtrip_time verify_robot_model gpio_config:='' affinity:='' **ext_axes_ros2_control_joints">
     <xacro:if value="${gpio_config == ''}">
       <xacro:property name="gpio_config" value="$(find kuka_rsi_driver)/config/gpio_config.xacro"/>
     </xacro:if>
@@ -12,7 +12,12 @@
     <!-- ros2 control -->
     <ros2_control name="${name}" type="system" is_async="true" rw_rate="250">
       <properties>
-        <async scheduling_policy="slave" print_warnings="true" thread_priority="30" affinity="[2,3]"/>
+        <xacro:if value="${affinity == ''}">
+          <async scheduling_policy="slave" print_warnings="true" thread_priority="30"/>
+        </xacro:if>
+        <xacro:unless value="${affinity == ''}">
+          <async scheduling_policy="slave" print_warnings="true" thread_priority="30" affinity="${affinity}"/>
+        </xacro:unless>
       </properties>
       <hardware>
         <xacro:if value="${mode == 'mock'}">
