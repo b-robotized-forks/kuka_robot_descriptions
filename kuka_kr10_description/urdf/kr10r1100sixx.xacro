@@ -19,6 +19,7 @@
     <xacro:arg name="cpu_affinity" default="[2,3]"/>
     <xacro:kuka_kr10r1100sixx prefix="$(arg prefix)"
                               name="$(arg name)"
+                              gpio_config="$(arg gpio_config)"
                               initial_positions_file="$(arg initial_positions_file)"
                               driver_version="$(arg driver_version)"
                               controller_ip="$(arg controller_ip)"
