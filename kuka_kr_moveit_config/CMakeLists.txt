@@ -21,6 +21,7 @@ set(supported_robots
   kr10_r1100_3
   kr13_r900_3
   kr16_r1100_3
+  kr10_r1100_sixx
   kr12_r1450_3_hw
   kr16_r1610_2
   kr16_r2010_2
