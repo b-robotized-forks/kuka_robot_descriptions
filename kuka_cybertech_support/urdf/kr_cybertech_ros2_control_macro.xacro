@@ -11,11 +11,11 @@
     </xacro:if>
     <!-- ros2 control -->
     <ros2_control name="${name}" type="system" is_async="${is_async}">
-        <xacro:if value="${is_async}">
-          <properties>
-              <async affinity="${async_affinity}" scheduling_policy="${scheduling_policy}" print_warnings="false" thread_priority="${async_thread_priority}"/>
-          </properties>
-        </xacro:if>
+      <xacro:if value="${is_async}">
+        <properties>
+          <async affinity="${async_affinity}" scheduling_policy="${scheduling_policy}" print_warnings="false" thread_priority="${async_thread_priority}"/>
+        </properties>
+      </xacro:if>
       <hardware>
         <param name="interface_prefix">${prefix}</param>
         <xacro:if value="${mode == 'mock'}">
