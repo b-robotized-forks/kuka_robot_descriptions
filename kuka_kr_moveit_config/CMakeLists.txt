@@ -13,25 +13,42 @@ set(supported_robots
   kr6_r700_2
   kr6_r900_sixx
   kr6_r900_2
+  kr7_r900_3
   kr8_r1440_2_arc_hw
   kr8_r2100_2_arc_hw
   kr10_r900_2
   kr10_r1100_2
+  kr10_r1100_3
+  kr13_r900_3
+  kr16_r1100_3
   kr10_r1100_sixx
   kr12_r1450_3_hw
   kr16_r1610_2
   kr16_r2010_2
   kr20_r1810_2
+  kr20_r1820_2_e
+  kr20_r3100
+  kr30_r2100
+  kr50_r2100
+  kr50_r2500
   kr70_r2100
+  kr120_r2700_2
   kr150_r3100_2
   kr210_r2700_2
   kr210_r3100_2
+  kr210_r3100_ultra
+  kr210_r3300_2_k
   kr240_r2900_2
   kr240_r3330
   kr300_r2700_2
   kr300_r2800_2_mt
-  kr340_r3400_2
+  kr360_r2830
+  kr500_r2800_2
   kr560_r3100_2
+  kr600_r2830
+  kr800_r2800_2
+  kr35_r1840_3_hw
+  kr340_r3400_2
 )
 
 foreach(model IN LISTS supported_robots)
