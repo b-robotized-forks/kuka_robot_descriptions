@@ -3,7 +3,7 @@
     <!-- TODO: OZ edited -->
     <xacro:macro name="kuka_ros2_control"
                  params="name robot_prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model thread_priority:=30 scheduling_policy:='' cpu_affinity:='[2,3]'
-                 gpio_config:='' read_motor_current:=false **ext_axes_ros2_control_joints">
+                 gpio_config:='' read_motor_current:=false read_cartesian_setpoint:=false read_cartesian_pose:=false **ext_axes_ros2_control_joints">
         <xacro:property name="initial_positions"
                         value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
         <xacro:if value="${gpio_config == ''}">
@@ -116,6 +116,26 @@
             <xacro:unless value="${use_gpio}">
                 <gpio name="gpio"/>
             </xacro:unless>
+            <xacro:if value="${read_cartesian_setpoint}">
+                <sensor name="cartesian_setpoint">
+                    <state_interface name="x"/>
+                    <state_interface name="y"/>
+                    <state_interface name="z"/>
+                    <state_interface name="a"/>
+                    <state_interface name="b"/>
+                    <state_interface name="c"/>
+                </sensor>
+            </xacro:if>
+            <xacro:if value="${read_cartesian_pose}">
+                <sensor name="cartesian_pose">
+                    <state_interface name="x"/>
+                    <state_interface name="y"/>
+                    <state_interface name="z"/>
+                    <state_interface name="a"/>
+                    <state_interface name="b"/>
+                    <state_interface name="c"/>
+                </sensor>
+            </xacro:if>
         </ros2_control>
     </xacro:macro>
 </robot>
