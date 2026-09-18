@@ -6,7 +6,7 @@
 
 
     <!-- TODO: OZ edited -->
-    <xacro:macro name="kuka_kr10r1100sixx" params="prefix name initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model scheduling_policy:='' thread_priority:=30 cpu_affinity:='[2,3]' gpio_config:='' read_motor_current:=false read_cartesian_setpoint:=false read_cartesian_pose:=false **ext_axes_ros2_control_joints">
+    <xacro:macro name="kuka_kr10r1100sixx" params="prefix name initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model scheduling_policy:='' thread_priority:=30 cpu_affinity:='[2,3]' gpio_config:='' read_motor_current:=false read_gear_torque:=false read_cartesian_setpoint:=false read_cartesian_pose:=false read_robot_status:=false **ext_axes_ros2_control_joints">
         <link name="${prefix}base_link">
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -194,8 +194,10 @@
                                  thread_priority="${thread_priority}"
                                  cpu_affinity="${cpu_affinity}"
                                  read_motor_current="${read_motor_current}"
+                                 read_gear_torque="${read_gear_torque}"
                                  read_cartesian_setpoint="${read_cartesian_setpoint}"
-                                 read_cartesian_pose="${read_cartesian_pose}">
+                                 read_cartesian_pose="${read_cartesian_pose}"
+                                 read_robot_status="${read_robot_status}">
             <ext_axes_ros2_control_joints>
                 <xacro:insert_block name="ext_axes_ros2_control_joints"/>
             </ext_axes_ros2_control_joints>

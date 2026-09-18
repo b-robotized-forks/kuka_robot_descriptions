@@ -3,7 +3,7 @@
     <!-- TODO: OZ edited -->
     <xacro:macro name="kuka_ros2_control"
                  params="name robot_prefix initial_positions_file driver_version client_ip client_port mxa_client_port controller_ip mode use_gpio roundtrip_time verify_robot_model thread_priority:=30 scheduling_policy:='' cpu_affinity:='[2,3]'
-                 gpio_config:='' read_motor_current:=false read_cartesian_setpoint:=false read_cartesian_pose:=false **ext_axes_ros2_control_joints">
+                 gpio_config:='' read_motor_current:=false read_gear_torque:=false read_cartesian_setpoint:=false read_cartesian_pose:=false read_robot_status:=false **ext_axes_ros2_control_joints">
         <xacro:property name="initial_positions"
                         value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
         <xacro:if value="${gpio_config == ''}">
@@ -63,6 +63,9 @@
                 <xacro:if value="${read_motor_current}">
                     <state_interface name="current"/>
                 </xacro:if>
+                <xacro:if value="${read_gear_torque}">
+                    <state_interface name="torque"/>
+                </xacro:if>
             </joint>
             <joint name="${robot_prefix}joint_a2">
                 <command_interface name="position"/>
@@ -71,6 +74,9 @@
                 </state_interface>
                 <xacro:if value="${read_motor_current}">
                     <state_interface name="current"/>
+                </xacro:if>
+                <xacro:if value="${read_gear_torque}">
+                    <state_interface name="torque"/>
                 </xacro:if>
             </joint>
             <joint name="${robot_prefix}joint_a3">
@@ -81,6 +87,9 @@
                 <xacro:if value="${read_motor_current}">
                     <state_interface name="current"/>
                 </xacro:if>
+                <xacro:if value="${read_gear_torque}">
+                    <state_interface name="torque"/>
+                </xacro:if>
             </joint>
             <joint name="${robot_prefix}joint_a4">
                 <command_interface name="position"/>
@@ -89,6 +98,9 @@
                 </state_interface>
                 <xacro:if value="${read_motor_current}">
                     <state_interface name="current"/>
+                </xacro:if>
+                <xacro:if value="${read_gear_torque}">
+                    <state_interface name="torque"/>
                 </xacro:if>
             </joint>
             <joint name="${robot_prefix}joint_a5">
@@ -99,6 +111,9 @@
                 <xacro:if value="${read_motor_current}">
                     <state_interface name="current"/>
                 </xacro:if>
+                <xacro:if value="${read_gear_torque}">
+                    <state_interface name="torque"/>
+                </xacro:if>
             </joint>
             <joint name="${robot_prefix}joint_a6">
                 <command_interface name="position"/>
@@ -107,6 +122,9 @@
                 </state_interface>
                 <xacro:if value="${read_motor_current}">
                     <state_interface name="current"/>
+                </xacro:if>
+                <xacro:if value="${read_gear_torque}">
+                    <state_interface name="torque"/>
                 </xacro:if>
             </joint>
             <xacro:if value="${use_gpio}">
@@ -134,6 +152,12 @@
                     <state_interface name="a"/>
                     <state_interface name="b"/>
                     <state_interface name="c"/>
+                </sensor>
+            </xacro:if>
+            <xacro:if value="${read_robot_status}">
+                <sensor name="robot_status">
+                    <state_interface name="program_state"/>
+                    <state_interface name="speed_scaling_factor"/>
                 </sensor>
             </xacro:if>
         </ros2_control>
