@@ -19,6 +19,8 @@ ROS2 Distro | Branch | Github CI
 - `kuka_quantec_support` contains urdf, config and mesh files for KUKA quantec robots.
 - `kuka_kl_support` contains urdf, config and mesh files for KUKA KL units.
 - `kuka_kr_moveit_config` contains configuration files for KUKA KR robots necessary for planning with MoveIt.
+- `kuka_lbr_iico_support` contains urdf, config and mesh files for KUKA iico robots.
+- `kuka_lbr_iico_moveit_config` contains configuration files for KUKA LBR iico robots necessary for planning with MoveIt.
 - `kuka_lbr_iisy_support` contains urdf, config and mesh files for KUKA iisy robots.
 - `kuka_lbr_iisy_moveit_config` contains configuration files for KUKA LBR iisy robots necessary for planning with MoveIt.
 - `kuka_lbr_iiwa_support` contains urdf, config and mesh files for KUKA LBR iiwa robots
@@ -96,21 +98,41 @@ Example of attaching an end effector (with link name `eef_base_link`) to the `fl
 
 ### External axis support
 
-Robots marked as supporting external exis in the [supported features](#supported-features) have URDFs prepared for this feature.
+Robots marked as supporting external axes in the [supported features](#supported-features) can be composed with a rail model through shared templates.
 
-- The `world` link and the `world-base_link` joint (and the `origin` block) are moved from the macro into the URDF xacro.
+The composition is now template-based and parameterized in `kuka_resources`:
 
-  - This allows you to:
+- URDF template: `kuka_resources/urdf/robot_with_external_axis_template.urdf.xacro`
+- SRDF template: `kuka_resources/srdf/robot_with_external_axis_template.srdf.xacro`
+- MoveIt launch template wiring: `kuka_resources/launch/moveit_server_template.launch.py`
 
-    - easily modify the link chain between `world` and the robot base (e.g., add external axes),
-    - align multiple robots to a shared `world` link.
+This means you can use any supported combination of `robot_model` and `kl_model` via launch arguments. A separate examples repository is not required for model composition.
 
-- A new parameter, `ext_axes_ros2_control_joints`, is added to the robot family's `ros2_control` macro.
+The URDF template composes the model in this order:
 
-  - It is used to insert joints from external axes into the correct section of the macro.
-  - An empty block is required even when no external axes are used.
+1. `world` link and world-to-rail base joint
+2. external-axis links
+3. robot links
+4. external-axis joints connecting the rail to `prefix + base_link`
 
-Without any external axes, the end of the URDF looks as follows (with _robotfamily_ and _robotmodel_ as placeholders):
+Maintaining this order is required for a valid URDF.
+
+Prefixing behavior for external-axis joints and links:
+
+- External-axis names use `kl_prefix`.
+- The global robot `prefix` is applied on top of `kl_prefix`.
+- Effective external-axis prefix is `prefix + kl_prefix`.
+
+When you change `kl_prefix`, replace `rail_` with the new prefix in the following files:
+
+- Using with RViz: `view_6_axis_kl_urdf.rviz`
+- Using with MoveIt:
+  - The joint limits of the KL model, so e.g. `kl100_2_joint_limits.yaml`
+  - `moveit_controllers_6_axis_kl.yaml`
+  - `planning_6_axis_kl.rviz`
+- Using with Gazebo: `fake_hardware_config_6_axis_kl.yaml`
+
+Without any external axes, the end of a robot URDF still looks like this (with _robotfamily_ and _robotmodel_ as placeholders):
 
 ```xml
 <xacro:kuka_robotfamily_ros2_control ...>
@@ -131,35 +153,50 @@ Without any external axes, the end of the URDF looks as follows (with _robotfami
 </joint>
 ```
 
-With an external axis (KL100-2 in this example):
+With an external axis (KL100-2 in this example), the template composes the rail and robot as follows:
 
 ```xml
 <xacro:kuka_robotfamily_ros2_control ...>
   <ext_axes_ros2_control_joints>
-    <!-- kl ros2 control joints -->
-    <xacro:kuka_kl_ros2_control_joints/>
+    <xacro:kuka_kl_ros2_control_joints prefix="$(arg prefix)$(arg kl_prefix)" mode="$(arg mode)"/>
   </ext_axes_ros2_control_joints>
 </xacro:kuka_robotfamily_ros2_control>
 
 <!-- world link -->
 <link name="world"/>
 
-<!-- kl100_2 links -->
-<xacro:kl100_2_links/>
+<!-- world - external-axis base joint -->
+<joint name="world-$(arg prefix)$(arg kl_prefix)base_link" type="fixed">
+  <parent link="world"/>
+  <child link="$(arg prefix)$(arg kl_prefix)base_link"/>
+  <origin xyz="$(arg x) $(arg y) $(arg z)" rpy="$(arg roll) $(arg pitch) $(arg yaw)"/>
+</joint>
 
+<!-- external-axis links -->
+<xacro:kl100_2_links prefix="$(arg prefix)$(arg kl_prefix)"/>
+
+<!-- robot links -->
 <xacro:robotmodel prefix="$(arg prefix)" package_name="kuka_robotfamily_support"/>
 
-<!-- kl100_2 joints -->
-<xacro:kl100_2_joints robot_base_link="$(arg prefix)base_link">
+<!-- external-axis joints -->
+<xacro:kl100_2_joints prefix="$(arg prefix)$(arg kl_prefix)" robot_base_link="$(arg prefix)base_link">
   <origin xyz="$(arg x) $(arg y) $(arg z)" rpy="$(arg roll) $(arg pitch) $(arg yaw)"/>
 </xacro:kl100_2_joints>
 ```
 
-The order of these tags is important to produce a valid URDF.
-
 To support different external axis types (prismatic and revolute), custom `ros2_control` joint parameters were introduced: `type` and `is_external`. An example can be found in [`kl_ros2_control_macro.xacro`](./kuka_kl_support/urdf/kl_ros2_control_macro.xacro). These parameters are optional; if omitted, the driver assumes revolute internal joints.
 
 Although these parameters increase configuration complexity, they are necessary. Without them, the driver could not correctly distinguish between internal and external joints, which is critical for the RobotSensorInterface option package. They also allow the driver to convert between ROS 2 units (meters/radians) and KUKA units (millimetres/degrees).
+
+To support integration with third-party tracks or linear rails, the launch and xacro wiring expose these parameters:
+
+- `kl_support_package`
+- `kl_ros2_control_macro_file`
+- `kl_ros2_control_joints_macro`
+- `kl_srdf_macro_file`
+- `kl_srdf_adjacent_links_macro`
+
+These parameters are required to keep external-axis integration generic, so custom rail packages can provide their own URDF/SRDF and `ros2_control` macro entry points.
 
 #### Support for KL units
 
@@ -171,32 +208,53 @@ The following table shows what data is verified for each robot in the support pa
 
 |Robot name | Robot family | Transformations | Joint position limits | Joint velocity limits | Joint effort limits | Inertial values | Simplified collision meshes|
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-|lbr_iisy3_r760| - | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-|lbr_iisy11_r1300| - | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-|lbr_iisy15_r930| - | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-|lbr_iiwa14_r820| - | ✓ | ✓ | ✓ | | | ✓ |
+|lbr_iico7_r900| lbr_iico | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|lbr_iico12_r1260| lbr_iico | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|lbr_iisy3_r760| lbr_iisy | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|lbr_iisy8_r930| lbr_iisy | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|lbr_iisy11_r1300| lbr_iisy | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|lbr_iisy15_r930| lbr_iisy | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|lbr_iiwa14_r820| lbr_iiwa | ✓ | ✓ | ✓ | | | ✓ |
 |kr4_r600| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr6_r700_2| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr6_r700_sixx| agilus | ✓ | ✓ | ✓ | | | ✓ |
 |kr6_r900_2| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr6_r900_sixx| agilus | ✓ | ✓ | ✓ | | | ✓ |
+|kr7_r900_3| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr10_r900_2| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr10_r1100_2| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr10_r1100_3| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr13_r900_3| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr16_r1100_3| agilus | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr8_r1440_2_arc_hw| cybertech | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr8_r2100_2_arc_hw| cybertech | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr12_r1450_3_hw| cybertech | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr16_r1610_2| cybertech | ✓ | ✓ | ✓ | ✓ | | ✓ |
 |kr16_r2010_2| cybertech | ✓ | ✓ | ✓ | ✓ | | ✓ |
 |kr20_r1810_2| cybertech | ✓ | ✓ | ✓ | ✓ | | ✓ |
+|kr20_r1820_2_e| cybertech | ✓ | ✓ | ✓ | ✓ | | ✓ |
+|kr35_r1840_3_hw| cybertech | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr20_r3100| iontec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr30_r2100| iontec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr50_r2500| iontec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr50_r2100| iontec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr70_r2100| iontec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr120_r2700_2| quantec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr150_r3100| quantec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr210_r2700_2| quantec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr210_r3100_2| quantec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr210_r3100_ultra| quantec | ✓ | ✓ | ✓ | ✓ | | ✓ |
+|kr210_r3300_2_k| quantec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr240_r2900_2| quantec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr300_r2700_2| quantec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr240_r3330| fortec | ✓ | ✓ | ✓ | ✓ | | ✓ |
 |kr300_r2800_2_mt| fortec | ✓ | ✓ | ✓ | ✓ | | ✓ |
+|kr340_r3400_2| fortec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr360_r2830| fortec | ✓ | ✓ | ✓ | ✓ | | ✓ |
+|kr500_r2800_2| fortec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 |kr560_r3100_2| fortec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr600_r2830| fortec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+|kr800_r2800_2| fortec | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ## Supported features
 
@@ -204,7 +262,10 @@ The following table shows the supported customizable features for each robot in 
 
 |Robot name | Robot family | GPIO support | External axis support | Gazebo support |
 |---|:---:|:---:|:---:|:---:|
+|lbr_iico7_r900| lbr_iico | ✓ | ✓ | ✓ |
+|lbr_iico12_r1260| lbr_iico | ✓ | ✓ | ✓ |
 |lbr_iisy3_r760| lbr_iisy | | ✓ | ✓ |
+|lbr_iisy8_r930| lbr_iisy | ✓ | ✓ | ✓ |
 |lbr_iisy11_r1300| lbr_iisy | | ✓ | ✓ |
 |lbr_iisy15_r930| lbr_iisy | | ✓ | ✓ |
 |lbr_iiwa14_r820| lbr_iiwa | | ✓ | |
@@ -213,22 +274,40 @@ The following table shows the supported customizable features for each robot in 
 |kr6_r700_sixx| agilus | ✓ | ✓ | |
 |kr6_r900_2| agilus | ✓ | ✓ | ✓ |
 |kr6_r900_sixx| agilus | ✓ | ✓ | |
+|kr7_r900_3| agilus | ✓ | ✓ | ✓ |
 |kr10_r900_2| agilus | ✓ | ✓ | ✓ |
 |kr10_r1100_2| agilus | ✓ | ✓ | ✓ |
+|kr10_r1100_3| agilus | ✓ | ✓ | ✓ |
+|kr13_r900_3| agilus | ✓ | ✓ | ✓ |
+|kr16_r1100_3| agilus | ✓ | ✓ | ✓ |
 |kr8_r1440_2_arc_hw| cybertech | ✓ | ✓ | ✓ |
 |kr8_r2100_2_arc_hw| cybertech | ✓ | ✓ | ✓ |
 |kr12_r1450_3_hw| cybertech | ✓ | ✓ | ✓ |
 |kr16_r1610_2| cybertech | ✓ | ✓ | |
 |kr16_r2010_2| cybertech | ✓ | ✓ | |
 |kr20_r1810_2| cybertech | ✓ | ✓ | |
+|kr20_r1820_2_e| cybertech | ✓ | ✓ | ✓ |
+|kr35_r1840_3_hw| cybertech | ✓ | ✓ | ✓ |
+|kr20_r3100| iontec | ✓ | ✓ | ✓ |
+|kr30_r2100| iontec | ✓ | ✓ | ✓ |
+|kr50_r2500| iontec | ✓ | ✓ | ✓ |
+|kr50_r2100| iontec | ✓ | ✓ | ✓ |
 |kr70_r2100| iontec | ✓ | ✓ | ✓ |
+|kr120_r2700_2| quantec | ✓ | ✓ | ✓ |
 |kr210_r2700_2| quantec | ✓ | ✓ | ✓ |
 |kr210_r3100_2| quantec | ✓ | ✓ | ✓ |
+|kr210_r3100_ultra| quantec | ✓ | ✓ | |
+|kr210_r3300_2_k| quantec | ✓ | ✓ | ✓ |
 |kr240_r2900_2| quantec | ✓ | ✓ | ✓ |
 |kr300_r2700_2| quantec | ✓ | ✓ | ✓ |
 |kr240_r3330| fortec | ✓ | ✓ | |
 |kr300_r2800_2_mt| fortec | ✓ | ✓ | ✓ |
+|kr340_r3400_2| fortec | ✓ | ✓ | ✓ |
+|kr360_r2830| fortec | ✓ | ✓ | |
+|kr500_r2800_2| fortec | ✓ | ✓ | ✓ |
 |kr560_r3100_2| fortec | ✓ | ✓ | ✓ |
+|kr600_r2830| fortec | ✓ | ✓ | ✓ |
+|kr800_r2800_2| fortec | ✓ | ✓ | ✓ |
 
 ## Custom mock hardware
 
@@ -237,7 +316,9 @@ This is necessary, as the driver workflow also activates controllers, which is p
 Additionally two hardware parameters are added:
 
 - To support similar timing behaviour as the actual robots, the mock hardware was extended with a blocking wait, so that the read function does not return immediately, but cyclically. The frequency of the loops is defined by the `cycle_time_ms` parameter. Default value is 4  [ms].
-- To be able to test whether a specific setup would fit into the roundtrip time enforced by a real robot, the `roundtrip_time_micro` parameter can be used. If the `write()` method is not called before the given timeout is exceeded (starting from the previous `read()` function), a warning message is logged (but the return value of the `write()` will be still SUCCESS). Default value is 0 [us], which means, that the roundrip time should not be monitored.
+- To be able to test whether a specific setup would fit into the roundtrip time enforced by a real robot, the `roundtrip_time_micro` parameter can be used. If the `write()` method is not called before the given timeout is exceeded (starting from the previous `read()` function), a warning message is logged (but the return value of the `write()` will be still SUCCESS). Default value is 0 [us], which means, that the roundtrip time should not be monitored. If such a warning is triggered, two root causes are possible:
+- Controller update takes too long, therefore `write` is also delayed
+- Scheduling jitter is high, main thread could not wake up in time
 
 The mock hardware was implemented in this repository to allow testing moveit capabilities for the robots without having to build the driver code.
 
@@ -275,7 +356,7 @@ ros2 launch kuka_lbr_iiwa_moveit_config moveit_planning_fake_hardware.launch.py
 
 A `robot_model` argument can be added after the command (e.g. `robot_model:=lbr_iisy11_r1300`). The default robot model is `lbr_iisy3_r760`
 
-These launch files are not using the actual driver implementation, they only start `rviz` the `move_group` server and a `ros2_control_node` with fake hardware and two controllers `joint_state_broadcaster` and `joint_trajectory_controller` The server will be able to accept planning requests from the plugin or from code. An example how to create such a request from C++ code can be found in the `iiqka_moveit_example` package in the [`examples`](https://github.com/kroshu/examples) repository.
+These launch files do not use the actual driver implementation. Instead, they start RViz, the `move_group` server, and a `ros2_control_node` configured with fake hardware, along with the `joint_state_broadcaster` and `joint_trajectory_controller` controllers. The server can accept planning requests from the MoveIt plugin or directly from user code. An example of how to create such a request in C++ can be found in the `moveit_example` package in the [`examples`](https://github.com/kroshu/examples) repository.
 
 ## Starting the move group server with Gazebo
 
