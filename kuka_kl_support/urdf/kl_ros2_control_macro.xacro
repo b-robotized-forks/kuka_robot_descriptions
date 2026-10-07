@@ -20,6 +20,9 @@
         <state_interface name="current">
           <param name="initial_value">0.0</param>
         </state_interface>
+        <state_interface name="position_setpoint">
+          <param name="initial_value">0.0</param>
+        </state_interface>
       </xacro:unless>
     </joint>
   </xacro:macro>

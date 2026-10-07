@@ -70,6 +70,9 @@
           <state_interface name="current">
             <param name="initial_value">0.0</param>
           </state_interface>
+          <state_interface name="position_setpoint">
+            <param name="initial_value">0.0</param>
+          </state_interface>
         </xacro:unless>
       </joint>
       <joint name="${prefix}joint_2">
@@ -87,6 +90,9 @@
             <param name="initial_value">0.0</param>
           </state_interface>
           <state_interface name="current">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="position_setpoint">
             <param name="initial_value">0.0</param>
           </state_interface>
         </xacro:unless>
@@ -108,6 +114,9 @@
           <state_interface name="current">
             <param name="initial_value">0.0</param>
           </state_interface>
+          <state_interface name="position_setpoint">
+            <param name="initial_value">0.0</param>
+          </state_interface>
         </xacro:unless>
       </joint>
       <joint name="${prefix}joint_4">
@@ -125,6 +134,9 @@
             <param name="initial_value">0.0</param>
           </state_interface>
           <state_interface name="current">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="position_setpoint">
             <param name="initial_value">0.0</param>
           </state_interface>
         </xacro:unless>
@@ -146,6 +158,9 @@
           <state_interface name="current">
             <param name="initial_value">0.0</param>
           </state_interface>
+          <state_interface name="position_setpoint">
+            <param name="initial_value">0.0</param>
+          </state_interface>
         </xacro:unless>
       </joint>
       <joint name="${prefix}joint_6">
@@ -163,6 +178,9 @@
             <param name="initial_value">0.0</param>
           </state_interface>
           <state_interface name="current">
+            <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="position_setpoint">
             <param name="initial_value">0.0</param>
           </state_interface>
         </xacro:unless>
