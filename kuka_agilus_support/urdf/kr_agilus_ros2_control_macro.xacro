@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="kuka_agilus_ros2_control" params="name driver_version client_ip client_port mxa_client_port controller_ip prefix mode use_gpio roundtrip_time verify_robot_model rsi_xml_config_file is_async async_thread_priority async_affinity gazebo_controller_config_path:=config/fake_hardware_config_6_axis.yaml **ext_axes_ros2_control_joints async_scheduling_policy:=detached read_current:=false read_robot_status:=false read_cartesian_pose:=false read_cartesian_setpoint:=false">
+  <xacro:macro name="kuka_agilus_ros2_control" params="name driver_version client_ip client_port mxa_client_port controller_ip prefix mode use_gpio roundtrip_time verify_robot_model rsi_xml_config_file is_async async_thread_priority async_affinity gazebo_controller_config_path:=config/fake_hardware_config_6_axis.yaml **ext_axes_ros2_control_joints async_scheduling_policy:=detached read_robot_status:=false read_cartesian_pose:=false read_cartesian_setpoint:=false">
     <!-- gazebo -->
     <xacro:if value="${mode == 'gazebo'}">
       <xacro:include filename="$(find kuka_gazebo)/gazebo/kuka_gazebo.xacro"/>
@@ -67,11 +67,9 @@
           <state_interface name="effort">
             <param name="initial_value">0.0</param>
           </state_interface>
-          <xacro:if value="${read_current}">
-              <state_interface name="current">
-                <param name="initial_value">0.0</param>
-              </state_interface>
-          </xacro:if>
+            <state_interface name="current">
+              <param name="initial_value">0.0</param>
+            </state_interface>
         </xacro:unless>
       </joint>
       <joint name="${prefix}joint_2">
@@ -88,11 +86,9 @@
           <state_interface name="effort">
             <param name="initial_value">0.0</param>
           </state_interface>
-          <xacro:if value="${read_current}">
-              <state_interface name="current">
-                <param name="initial_value">0.0</param>
-              </state_interface>
-          </xacro:if>
+            <state_interface name="current">
+              <param name="initial_value">0.0</param>
+            </state_interface>
         </xacro:unless>
       </joint>
       <joint name="${prefix}joint_3">
@@ -109,11 +105,9 @@
           <state_interface name="effort">
             <param name="initial_value">0.0</param>
           </state_interface>
-          <xacro:if value="${read_current}">
-              <state_interface name="current">
-                <param name="initial_value">0.0</param>
-              </state_interface>
-          </xacro:if>
+            <state_interface name="current">
+              <param name="initial_value">0.0</param>
+            </state_interface>
         </xacro:unless>
       </joint>
       <joint name="${prefix}joint_4">
@@ -130,11 +124,9 @@
           <state_interface name="effort">
             <param name="initial_value">0.0</param>
           </state_interface>
-          <xacro:if value="${read_current}">
-              <state_interface name="current">
-                <param name="initial_value">0.0</param>
-              </state_interface>
-          </xacro:if>
+            <state_interface name="current">
+              <param name="initial_value">0.0</param>
+            </state_interface>
         </xacro:unless>
       </joint>
       <joint name="${prefix}joint_5">
@@ -151,11 +143,9 @@
           <state_interface name="effort">
             <param name="initial_value">0.0</param>
           </state_interface>
-          <xacro:if value="${read_current}">
-            <state_interface name="current">
-              <param name="initial_value">0.0</param>
-            </state_interface>
-          </xacro:if>
+          <state_interface name="current">
+            <param name="initial_value">0.0</param>
+          </state_interface>
         </xacro:unless>
       </joint>
       <joint name="${prefix}joint_6">
@@ -172,11 +162,9 @@
           <state_interface name="effort">
             <param name="initial_value">0.0</param>
           </state_interface>
-          <xacro:if value="${read_current}">
-            <state_interface name="current">
-              <param name="initial_value">0.0</param>
-            </state_interface>
-          </xacro:if>
+          <state_interface name="current">
+            <param name="initial_value">0.0</param>
+          </state_interface>
         </xacro:unless>
       </joint>
       <xacro:if value="${use_gpio}">
