@@ -30,17 +30,26 @@ using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface
 class KukaMockHardwareInterface : public mock_components::GenericSystem
 {
 public:
+  // Value of an unlisted interface. full_name is "<prefix>/<name>".
+  struct InterfaceValue
+  {
+    std::string prefix;
+    std::string name;
+    double * value;
+    std::string full_name = prefix + "/" + name;
+  };
+
   CallbackReturn on_init(
     const hardware_interface::HardwareComponentInterfaceParams & params) override;
   CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
   CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
-  std::vector<hardware_interface::StateInterface::ConstSharedPtr> on_export_state_interfaces()
-    override;
+  std::vector<hardware_interface::InterfaceDescription>
+  export_unlisted_state_interface_descriptions() override;
 
-  std::vector<hardware_interface::CommandInterface::SharedPtr> on_export_command_interfaces()
-    override;
+  std::vector<hardware_interface::InterfaceDescription>
+  export_unlisted_command_interface_descriptions() override;
 
   return_type read(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
@@ -92,6 +101,10 @@ protected:
   bool is_async_hardware_ = false;
   bool init_clock_ = true;
   std::chrono::steady_clock::time_point next_iteration_time_;
+
+  std::vector<InterfaceValue> state_values_;
+  std::vector<InterfaceValue> command_values_;
+  std::string interpolation_count_name_;
 };
 
 }  // namespace kuka_mock_hardware_interface
