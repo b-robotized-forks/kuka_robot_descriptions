@@ -31,7 +31,7 @@ add_library(${PROJECT_NAME} SHARED
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(${PROJECT_NAME} PRIVATE "KUKA_MOCK_HARDWARE_INTERFACE_BUILDING_LIBRARY")
 
-ament_target_dependencies(${PROJECT_NAME} rclcpp hardware_interface)
+target_link_libraries(${PROJECT_NAME} ${rclcpp_TARGETS} ${hardware_interface_TARGETS})
 
 pluginlib_export_plugin_description_file(hardware_interface hardware_interface.xml)
 

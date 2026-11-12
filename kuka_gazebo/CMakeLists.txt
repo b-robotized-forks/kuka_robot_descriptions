@@ -12,7 +12,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_executable(test_keep_alive test/gazebo_test_keep_alive.cpp)
-ament_target_dependencies(test_keep_alive rclcpp std_msgs)
+target_link_libraries(test_keep_alive ${rclcpp_TARGETS} ${std_msgs_TARGETS})
 
 install(
   DIRECTORY gazebo launch world config
